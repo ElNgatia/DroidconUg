@@ -31,8 +31,8 @@ android {
         targetSdkVersion 34
         compileSdkVersion 34
         multiDexEnabled true
-        versionCode 1
-        versionName "1.0.0.1"
+        versionCode 4
+        versionName "1.0.0.4"
     }
 
     signingConfigs {
@@ -45,8 +45,13 @@ android {
     }
 
     buildTypes {
+        debug {
+            signingConfig signingConfigs.debug
+        }
         release {
-            signingConfig = signingConfigs.debug
+            minifyEnabled true
+            signingConfig signingConfigs.release
+            proguardFiles getDefaultProguardFile('proguard-android.txt')
         }
     }
 }

@@ -1,17 +1,14 @@
-import 'package:droidconug/core/theme/theme_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../common/data/models/models.dart';
 import '../../../common/utils/date_util.dart';
-import '../../../common/widgets/features/tag_item.dart';
+import '../../../common/widgets/features/session_item.dart';
 import '../../../common/widgets/progress/general_progress.dart';
 import '../../../common/widgets/progress/skeleton.dart';
-import '../../../core/theme/theme_styles.dart';
 import '../bloc/sessions_bloc.dart';
-
-part 'widgets/room_sessions_tab.dart';
-part 'widgets/session_tab.dart';
+import '../common/utils.dart';
+import 'session_screen.dart';
 
 class SessionsScreen extends StatefulWidget {
   const SessionsScreen({super.key});
@@ -67,7 +64,6 @@ class SessionsScreenState extends State<SessionsScreen>
               }
             }
             List<String> dates = groupedSessions.keys.toList();
-            dates.sort((a, b) => DateTime.parse(a).compareTo(DateTime.parse(b))); 
 
             return DefaultTabController(
               length: dates.length,
@@ -101,8 +97,37 @@ class SessionsScreenState extends State<SessionsScreen>
                 ),
                 body: TabBarView(
                   children: dates.map((date) {
-                    final dateSessions = groupedSessions[date] ?? [];
-                    return SessionTab(sessions: dateSessions);
+                    final sortedsessions = sortSessions(groupedSessions[date]!);
+                    return ListView.builder(
+                      itemCount: sortedsessions.length,
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      itemBuilder: (context, index) {
+                        return GestureDetector(
+                          onTap: () {
+                            final mainSession = sortedsessions[index];
+                            final otherSessions = sortedsessions
+                                .where((s) =>
+                                    s.startsAt == mainSession.startsAt &&
+                                    s.id != mainSession.id)
+                                .toList();
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => SessionScreen(
+                                  session: mainSession,
+                                  sessions: otherSessions,
+                                  rooms: rooms,
+                                ),
+                              ),
+                            );
+                          },
+                          child: SessionItem(
+                            session: sortedsessions[index],
+                            rooms: rooms,
+                          ),
+                        );
+                      },
+                    );
                   }).toList(),
                 ),
               ),

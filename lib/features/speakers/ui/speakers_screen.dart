@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -6,6 +8,7 @@ import '../../../common/widgets/progress/general_progress.dart';
 import '../../../common/widgets/progress/skeleton.dart';
 import '../../../core/theme/theme_colors.dart';
 import '../bloc/speakers_bloc.dart';
+import 'speaker_screen.dart';
 
 part 'widgets/speakers_card.dart';
 
@@ -33,7 +36,7 @@ class SpeakersScreenState extends State<SpeakersScreen>
             bookmarks = state.bookmarks;
             rooms = state.rooms;
             sessions = state.sessions;
-            speakers = state.speakers;
+            speakers = List.from(state.speakers)..shuffle(Random());
           }
         },
         builder: (context, state) {
@@ -58,8 +61,6 @@ class SpeakersScreenState extends State<SpeakersScreen>
                 title: const Text('Speakers'),
               ),
               body: GridView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
                 itemCount: speakers.length,
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2,
@@ -67,7 +68,21 @@ class SpeakersScreenState extends State<SpeakersScreen>
                 ),
                 itemBuilder: (context, index) {
                   final speaker = speakers[index];
-                  return SpeakerCard(speaker: speaker);
+                  return GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => SpeakerScreen(
+                            speaker: speaker,
+                            sessions: sessions,
+                            rooms: rooms,
+                          ),
+                        ),
+                      );
+                    },
+                    child: SpeakerCard(speaker: speaker),
+                  );
                 },
               ),
             );
