@@ -40,54 +40,8 @@ class SpeakersScreenState extends State<SpeakersScreen>
           }
         },
         builder: (context, state) {
-          if (state is SpeakersProgressState) {
-            return Scaffold(
-              appBar: AppBar(title: const Text('Speakers')),
-              body: const SkeletonLoading(),
-            );
-          } else if (state is SpeakersFetchedState) {
-            if (rooms.isEmpty) {
-              return Scaffold(
-                appBar: AppBar(title: const Text('Speakers')),
-                body: const EmptyState(
-                  title: 'No speakers available.',
-                  showRetry: false,
-                ),
-              );
-            }
-
-            return Scaffold(
-              appBar: AppBar(
-                title: const Text('Speakers'),
-              ),
-              body: GridView.builder(
-                itemCount: speakers.length,
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  childAspectRatio: 0.8,
-                ),
-                itemBuilder: (context, index) {
-                  final speaker = speakers[index];
-                  return GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => SpeakerScreen(
-                            speaker: speaker,
-                            sessions: sessions,
-                            rooms: rooms,
-                          ),
-                        ),
-                      );
-                    },
-                    child: SpeakerCard(speaker: speaker),
-                  );
-                },
-              ),
-            );
-          } else {
-            return Scaffold(
+          return state.maybeWhen(
+            orElse: () => Scaffold(
               appBar: AppBar(title: const Text('Speakers')),
               body: EmptyState(
                 title: 'Sorry, something went wrong.',
@@ -95,8 +49,63 @@ class SpeakersScreenState extends State<SpeakersScreen>
                 onRetry: () =>
                     context.read<SpeakersBloc>().add(const FetchData()),
               ),
-            );
-          }
+            ),
+            progress: () => Scaffold(
+              appBar: AppBar(title: const Text('Speakers')),
+              body: const SkeletonLoading(),
+            ),
+            failure: (feedback) => Scaffold(
+              appBar: AppBar(title: const Text('Speakers')),
+              body: EmptyState(
+                title: 'Sorry, something went wrong.',
+                showRetry: true,
+                onRetry: () =>
+                    context.read<SpeakersBloc>().add(const FetchData()),
+              ),
+            ),
+            fetched: (bookmarks, rooms, speakers, sessions) {
+              if (rooms.isEmpty) {
+                return Scaffold(
+                  appBar: AppBar(title: const Text('Speakers')),
+                  body: const EmptyState(
+                    title: 'No speakers available.',
+                    showRetry: false,
+                  ),
+                );
+              }
+
+              return Scaffold(
+                appBar: AppBar(
+                  title: const Text('Speakers'),
+                ),
+                body: GridView.builder(
+                  itemCount: speakers.length,
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    childAspectRatio: 0.8,
+                  ),
+                  itemBuilder: (context, index) {
+                    final speaker = speakers[index];
+                    return GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => SpeakerScreen(
+                              speaker: speaker,
+                              sessions: sessions,
+                              rooms: rooms,
+                            ),
+                          ),
+                        );
+                      },
+                      child: SpeakerCard(speaker: speaker),
+                    );
+                  },
+                ),
+              );
+            },
+          );
         },
       ),
     );
