@@ -58,40 +58,34 @@ class HomeScreenState extends State<HomeScreen> {
           }
         },
         builder: (context, state) {
-          var bloc = context.read<HomeBloc>();
-          Widget bodyWidget = EmptyState(
+          var appBar = AppBar(
+            title: GestureDetector(
+              child: Image.asset(AppAssets.droidconIcon, height: 50),
+              onTap: () => Navigator.pushNamed(context, RouteNames.settings),
+            ),
+          );
+          var emptyState = EmptyState(
             title: 'Sorry nothing to show here at the moment.',
             showRetry: true,
-            onRetry: () => bloc.add(const FetchOnlineData()),
+            onRetry: () =>
+                context.read<HomeBloc>().add(const FetchOnlineData()),
           );
 
-          if (state is HomeProgressState) {
-            bodyWidget = const SkeletonLoading();
-          } else if (state is HomeFetchedLocalState) {
-            bodyWidget = SingleChildScrollView(
-              child: Column(
-                children: <Widget>[
-                  SpeakersCarousel(parent: this),
-                  SessionsPreview(parent: this),
-                ],
-              ),
-            );
-          } else if (state is HomeFailureState) {
-            bodyWidget = EmptyState(
-              title: 'Sorry nothing to show here at the moment.',
-              showRetry: true,
-              onRetry: () => bloc.add(const FetchOnlineData()),
-            );
-          }
-
-          return Scaffold(
-            appBar: AppBar(
-              title: GestureDetector(
-                child: Image.asset(AppAssets.droidconIcon, height: 50),
-                onTap: () => Navigator.pushNamed(context, RouteNames.settings),
+          return state.maybeWhen(
+            orElse: () => Scaffold(appBar: appBar, body: emptyState),
+            progress: () => const Scaffold(body: SkeletonLoading()),
+            failure: (feedback) => Scaffold(appBar: appBar, body: emptyState),
+            fetchedLocal: (bookmarks, rooms, speakers, sessions) => Scaffold(
+              appBar: appBar,
+              body: SingleChildScrollView(
+                child: Column(
+                  children: <Widget>[
+                    SpeakersCarousel(parent: this),
+                    SessionsPreview(parent: this),
+                  ],
+                ),
               ),
             ),
-            body: bodyWidget,
           );
         },
       ),
