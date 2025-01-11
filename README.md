@@ -54,7 +54,19 @@ cd DroidconUg
 flutter pub get
 ```
 
-4. Run the app:
+4. Update code generated files:
+
+```bash
+dart run build_runner build --delete-conflicting-outputs
+```
+
+5. Update localization strings:
+
+```bash
+flutter gen-l10n
+```
+
+6. Run the app:
 
 ```bash
 flutter run
