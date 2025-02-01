@@ -29,7 +29,12 @@ class SessionsPreview extends StatelessWidget {
               RouteNames.sessions,
             );
           },
-          child: const Text('View All'),
+          child: Text(
+            'View All',
+            style: TextStyle(
+              color: ThemeColors.bgColorWB(context),
+            ),
+          ),
         ),
       ],
     );
