@@ -35,7 +35,12 @@ class SpeakersCarousel extends StatelessWidget {
                 RouteNames.speakers,
               );
             },
-            child: const Text('View All'),
+            child: Text(
+              'View All',
+              style: TextStyle(
+                color: ThemeColors.bgColorWB(context),
+              ),
+            ),
           ),
         ],
       ),
